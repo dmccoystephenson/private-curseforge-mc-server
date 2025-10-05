@@ -13,9 +13,8 @@ log() {
 validate_environment() {
     local warnings=false
     
-    if [ "$MODPACK_URL" = "YOUR_MODPACK_URL_HERE" ] || [ -z "$MODPACK_URL" ]; then
-        log "ERROR: MODPACK_URL is not set properly. Please configure your .env file with a valid CurseForge modpack URL."
-        exit 1
+    if [ -z "$MODPACK_URL" ] || [ "$MODPACK_URL" = "YOUR_MODPACK_URL_HERE" ]; then
+        log "No modpack URL specified. Will use default ${MOD_LOADER:-forge} server for Minecraft ${MINECRAFT_VERSION:-1.21.1}"
     fi
     
     if [ "$OPERATOR_UUID" = "YOUR_UUID_HERE" ] || [ -z "$OPERATOR_UUID" ]; then
@@ -91,6 +90,61 @@ download_modpack() {
     log "Modpack downloaded and extracted successfully"
 }
 
+# Function: Download default mod loader (Forge or Fabric)
+download_default_modloader() {
+    local minecraft_version="${MINECRAFT_VERSION:-1.21.1}"
+    local mod_loader="${MOD_LOADER:-forge}"
+    
+    log "Setting up default $mod_loader server for Minecraft $minecraft_version..."
+    
+    mkdir -p "$SERVER_DIR/mods"
+    mkdir -p "$SERVER_DIR/config"
+    
+    if [ "$mod_loader" = "forge" ]; then
+        # Download Forge installer
+        log "Downloading Forge installer for Minecraft $minecraft_version..."
+        local forge_url="https://maven.minecraftforge.net/net/minecraftforge/forge/${minecraft_version}/forge-${minecraft_version}-installer.jar"
+        
+        # Try to download the latest Forge installer
+        # Note: This is a simplified approach. In production, you'd want to query the Forge API
+        # For 1.21.1, a working version is known
+        if [ "$minecraft_version" = "1.21.1" ]; then
+            forge_url="https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.1-52.0.29/forge-1.21.1-52.0.29-installer.jar"
+        elif [ "$minecraft_version" = "1.20.1" ]; then
+            forge_url="https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.3.0/forge-1.20.1-47.3.0-installer.jar"
+        fi
+        
+        wget -O "$SERVER_DIR/forge-installer.jar" "$forge_url" || {
+            log "ERROR: Failed to download Forge installer"
+            log "Please check that Forge is available for Minecraft $minecraft_version"
+            exit 1
+        }
+        
+        log "Forge installer downloaded successfully"
+    elif [ "$mod_loader" = "fabric" ]; then
+        # Download Fabric installer
+        log "Downloading Fabric installer for Minecraft $minecraft_version..."
+        local fabric_installer_url="https://maven.fabricmc.net/net/fabricmc/fabric-installer/1.0.1/fabric-installer-1.0.1.jar"
+        
+        wget -O "$SERVER_DIR/fabric-installer.jar" "$fabric_installer_url" || {
+            log "ERROR: Failed to download Fabric installer"
+            exit 1
+        }
+        
+        # Run Fabric installer directly
+        cd "$SERVER_DIR"
+        java -jar fabric-installer.jar server -mcversion "$minecraft_version" -downloadMinecraft || {
+            log "ERROR: Failed to install Fabric"
+            exit 1
+        }
+        
+        log "Fabric server installed successfully"
+    else
+        log "ERROR: Unknown mod loader: $mod_loader (must be 'forge' or 'fabric')"
+        exit 1
+    fi
+}
+
 # Function: Setup Forge/Fabric server
 setup_modded_server() {
     log "Setting up modded server..."
@@ -104,9 +158,15 @@ setup_modded_server() {
         # shellcheck disable=SC2012
         installer_jar=$(ls "$SERVER_DIR"/forge-*-installer.jar | head -1)
         log "Found Forge installer: $installer_jar"
+    elif ls "$SERVER_DIR"/forge-installer.jar >/dev/null 2>&1; then
+        installer_jar="$SERVER_DIR/forge-installer.jar"
+        log "Found Forge installer: $installer_jar"
     elif ls "$SERVER_DIR"/fabric-installer-*.jar >/dev/null 2>&1; then
         # shellcheck disable=SC2012
         installer_jar=$(ls "$SERVER_DIR"/fabric-installer-*.jar | head -1)
+        log "Found Fabric installer: $installer_jar"
+    elif ls "$SERVER_DIR"/fabric-installer.jar >/dev/null 2>&1; then
+        installer_jar="$SERVER_DIR/fabric-installer.jar"
         log "Found Fabric installer: $installer_jar"
     fi
     
@@ -130,6 +190,9 @@ setup_modded_server() {
         # shellcheck disable=SC2012
         server_jar=$(ls "$SERVER_DIR"/fabric-server-*.jar | head -1)
         log "Found Fabric server JAR: $server_jar"
+    elif ls "$SERVER_DIR"/fabric-server-launch.jar >/dev/null 2>&1; then
+        server_jar="$SERVER_DIR/fabric-server-launch.jar"
+        log "Found Fabric server JAR: $server_jar"
     elif ls "$SERVER_DIR"/server.jar >/dev/null 2>&1; then
         server_jar="$SERVER_DIR/server.jar"
         log "Found server.jar"
@@ -150,8 +213,14 @@ setup_server() {
         log "Setting up new server..."
         rm -rf "${SERVER_DIR:?}"/*
         
-        # Download and extract modpack
-        download_modpack
+        # Check if modpack URL is provided
+        if [ -n "$MODPACK_URL" ] && [ "$MODPACK_URL" != "YOUR_MODPACK_URL_HERE" ]; then
+            # Download and extract modpack
+            download_modpack
+        else
+            # Download default mod loader
+            download_default_modloader
+        fi
         
         # Setup modded server (Forge/Fabric)
         SERVER_JAR=$(setup_modded_server)
@@ -167,6 +236,8 @@ setup_server() {
         elif ls "$SERVER_DIR"/fabric-server-*.jar >/dev/null 2>&1; then
             # shellcheck disable=SC2012
             SERVER_JAR=$(ls "$SERVER_DIR"/fabric-server-*.jar | head -1)
+        elif ls "$SERVER_DIR"/fabric-server-launch.jar >/dev/null 2>&1; then
+            SERVER_JAR="$SERVER_DIR/fabric-server-launch.jar"
         elif ls "$SERVER_DIR"/server.jar >/dev/null 2>&1; then
             SERVER_JAR="$SERVER_DIR/server.jar"
         else

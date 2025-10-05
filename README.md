@@ -22,6 +22,34 @@ A Docker-based private Minecraft server for running CurseForge modpacks with eas
 
 ## Quick Start
 
+### Option 1: Quick Start with Default Server (No Modpack Required)
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd private-curseforge-mc-server
+   ```
+
+2. **Configure the server**
+   ```bash
+   cp sample.env .env
+   # The default configuration will work out of the box!
+   ```
+
+3. **Start the server**
+   ```bash
+   chmod +x up.sh down.sh
+   ./up.sh
+   ```
+   
+   **Note**: The first build will take 5-10 minutes as it downloads and installs Forge.
+
+4. **Connect to your server**
+   - Server address: `localhost:25565` (or your server's IP)
+   - You'll have a vanilla Forge server ready to add mods to!
+
+### Option 2: Start with a CurseForge Modpack
+
 1. **Clone the repository**
    ```bash
    git clone <your-repo-url>
@@ -57,9 +85,13 @@ A Docker-based private Minecraft server for running CurseForge modpacks with eas
 
 Copy `sample.env` to `.env` and modify the following settings:
 
-### CurseForge Modpack Settings
-- `MODPACK_URL`: The download URL from CurseForge (REQUIRED)
+### CurseForge Modpack Settings (Optional)
+- `MODPACK_URL`: The download URL from CurseForge (leave empty for default Forge server)
 - `MODPACK_VERSION`: Version identifier for your reference
+
+### Default Server Settings (when no modpack is provided)
+- `MINECRAFT_VERSION`: Minecraft version to use (default: 1.21.1)
+- `MOD_LOADER`: Mod loader to use - `forge` or `fabric` (default: forge)
 
 ### Essential Settings
 - `OPERATOR_UUID`: Your Minecraft player UUID (get from [mcuuid.net](https://mcuuid.net/))

@@ -101,9 +101,11 @@ setup_modded_server() {
     
     # Find installer JAR (forge-installer or fabric-installer)
     if ls "$SERVER_DIR"/forge-*-installer.jar >/dev/null 2>&1; then
+        # shellcheck disable=SC2012
         installer_jar=$(ls "$SERVER_DIR"/forge-*-installer.jar | head -1)
         log "Found Forge installer: $installer_jar"
     elif ls "$SERVER_DIR"/fabric-installer-*.jar >/dev/null 2>&1; then
+        # shellcheck disable=SC2012
         installer_jar=$(ls "$SERVER_DIR"/fabric-installer-*.jar | head -1)
         log "Found Fabric installer: $installer_jar"
     fi
@@ -121,9 +123,11 @@ setup_modded_server() {
     
     # Find the server JAR after installation
     if ls "$SERVER_DIR"/forge-*.jar >/dev/null 2>&1 && ! ls "$SERVER_DIR"/forge-*-installer.jar >/dev/null 2>&1; then
+        # shellcheck disable=SC2010
         server_jar=$(ls "$SERVER_DIR"/forge-*.jar | grep -v installer | head -1)
         log "Found Forge server JAR: $server_jar"
     elif ls "$SERVER_DIR"/fabric-server-*.jar >/dev/null 2>&1; then
+        # shellcheck disable=SC2012
         server_jar=$(ls "$SERVER_DIR"/fabric-server-*.jar | head -1)
         log "Found Fabric server JAR: $server_jar"
     elif ls "$SERVER_DIR"/server.jar >/dev/null 2>&1; then
@@ -158,8 +162,10 @@ setup_server() {
         
         # Find existing server JAR
         if ls "$SERVER_DIR"/forge-*.jar >/dev/null 2>&1 && ! ls "$SERVER_DIR"/forge-*-installer.jar >/dev/null 2>&1; then
+            # shellcheck disable=SC2010
             SERVER_JAR=$(ls "$SERVER_DIR"/forge-*.jar | grep -v installer | head -1)
         elif ls "$SERVER_DIR"/fabric-server-*.jar >/dev/null 2>&1; then
+            # shellcheck disable=SC2012
             SERVER_JAR=$(ls "$SERVER_DIR"/fabric-server-*.jar | head -1)
         elif ls "$SERVER_DIR"/server.jar >/dev/null 2>&1; then
             SERVER_JAR="$SERVER_DIR/server.jar"

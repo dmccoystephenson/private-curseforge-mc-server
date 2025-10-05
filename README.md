@@ -90,7 +90,7 @@ Copy `sample.env` to `.env` and modify the following settings:
 - `MODPACK_VERSION`: Version identifier for your reference
 
 ### Default Server Settings (when no modpack is provided)
-- `MINECRAFT_VERSION`: Minecraft version to use (default: 1.21.1)
+- `MINECRAFT_VERSION`: Minecraft version to use (default: 1.21.9)
 - `MOD_LOADER`: Mod loader to use - `forge` or `fabric` (default: forge)
 
 ### Essential Settings

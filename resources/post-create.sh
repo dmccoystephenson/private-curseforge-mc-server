@@ -14,7 +14,7 @@ validate_environment() {
     local warnings=false
     
     if [ -z "$MODPACK_URL" ] || [ "$MODPACK_URL" = "YOUR_MODPACK_URL_HERE" ]; then
-        log "No modpack URL specified. Will use default ${MOD_LOADER:-forge} server for Minecraft ${MINECRAFT_VERSION:-1.21.1}"
+        log "No modpack URL specified. Will use default ${MOD_LOADER:-forge} server for Minecraft ${MINECRAFT_VERSION:-1.21.9}"
     fi
     
     if [ "$OPERATOR_UUID" = "YOUR_UUID_HERE" ] || [ -z "$OPERATOR_UUID" ]; then
@@ -92,7 +92,7 @@ download_modpack() {
 
 # Function: Download default mod loader (Forge or Fabric)
 download_default_modloader() {
-    local minecraft_version="${MINECRAFT_VERSION:-1.21.1}"
+    local minecraft_version="${MINECRAFT_VERSION:-1.21.9}"
     local mod_loader="${MOD_LOADER:-forge}"
     
     log "Setting up default $mod_loader server for Minecraft $minecraft_version..."
@@ -107,8 +107,10 @@ download_default_modloader() {
         
         # Try to download the latest Forge installer
         # Note: This is a simplified approach. In production, you'd want to query the Forge API
-        # For 1.21.1, a working version is known
-        if [ "$minecraft_version" = "1.21.1" ]; then
+        # For specific versions, we use known working Forge builds
+        if [ "$minecraft_version" = "1.21.9" ]; then
+            forge_url="https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.9-54.0.25/forge-1.21.9-54.0.25-installer.jar"
+        elif [ "$minecraft_version" = "1.21.1" ]; then
             forge_url="https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.1-52.0.29/forge-1.21.1-52.0.29-installer.jar"
         elif [ "$minecraft_version" = "1.20.1" ]; then
             forge_url="https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.3.0/forge-1.20.1-47.3.0-installer.jar"

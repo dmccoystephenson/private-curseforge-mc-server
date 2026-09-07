@@ -1,0 +1,36 @@
+services:
+  mcserver:
+    build:
+      context: .
+      args:
+        - MODPACK_URL=${MODPACK_URL}
+        - MODPACK_VERSION=${MODPACK_VERSION}
+    image: private-curseforge-mc-server
+    restart: always
+    container_name: ${CONTAINER_NAME:-private-curseforge-mc-server}
+    ports:
+      - "${HOST_PORT:-25565}:25565"
+      - "${HOST_RCON_PORT:-8100}:8100"
+    volumes:
+      - mcserver:/mcserver
+      - ./deposit-box:/deposit-box
+    environment:
+      - MODPACK_URL=${MODPACK_URL}
+      - MODPACK_VERSION=${MODPACK_VERSION}
+      - MINECRAFT_VERSION=${MINECRAFT_VERSION}
+      - MOD_LOADER=${MOD_LOADER}
+      - OPERATOR_UUID=${OPERATOR_UUID}
+      - OPERATOR_NAME=${OPERATOR_NAME}
+      - OPERATOR_LEVEL=${OPERATOR_LEVEL}
+      - OVERWRITE_EXISTING_SERVER=${OVERWRITE_EXISTING_SERVER}
+      - SERVER_MOTD=${SERVER_MOTD}
+      - MAX_PLAYERS=${MAX_PLAYERS}
+      - DIFFICULTY=${DIFFICULTY}
+      - GAMEMODE=${GAMEMODE}
+      - PVP_ENABLED=${PVP_ENABLED}
+      - ONLINE_MODE=${ONLINE_MODE}
+
+volumes:
+  mcserver:
+    name: ${VOLUME_NAME:-mcserver-curseforge}
+    external: false

@@ -319,7 +319,7 @@ This will run basic validation checks that mirror the CI pipeline to catch issue
 ### CI Pipeline Status
 
 The CI pipeline runs on:
-- Every push to `main` and `develop` branches
+- Every push to `main`
 - Every pull request to `main`
 
 Check the [Actions tab](https://github.com/dmccoystephenson/private-curseforge-mc-server/actions) for detailed CI results and logs.
